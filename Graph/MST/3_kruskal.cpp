@@ -4,17 +4,16 @@
 #include <stack>
 #include <stdlib.h>
 #include <string.h>
-
 using namespace std;
+
 class DisjointSet
 {
-    vector<int> rank, parent,size;
+    vector<int> rank, parent;
 
 public:
     DisjointSet(int n)
     {
         rank.resize(n + 1, 0);
-        size.resize(n + 1, 0);
         parent.resize(n + 1);
         for (int i = 0; i <= n; i++)
         {
@@ -49,43 +48,40 @@ public:
             rank[ulp_u]++;
         }
     }
-      void unionBySize(int u, int v) {
-        int ulp_u = findUPar(u);
-        int ulp_v = findUPar(v);
-        if (ulp_u == ulp_v) return;
-        if (size[ulp_u] < size[ulp_v]) {
-            parent[ulp_u] = ulp_v;
-            size[ulp_v] += size[ulp_u];
+};
+
+class Solution
+{
+public:
+    // Function to find sum of weights of edges of the Minimum Spanning Tree.
+    int spanningTree(int v, vector<vector<int>> adj[])
+    {
+
+        int mstwt = 0;
+        vector<pair<int, pair<int, int>>> edges;
+        for (int i = 0; i < v; i++)
+        {
+            for (auto it : adj[i])
+            {
+                int node = i;
+                int adjnode = it[0];
+                int wt = it[1];
+                edges.push_back({wt, {node, adjnode}});
+            }
         }
-        else {
-            parent[ulp_v] = ulp_u;
-            size[ulp_u] += size[ulp_v];
+        DisjointSet ds(v);
+        sort(edges.begin(), edges.end());
+        for (auto it : edges)
+        {
+            int wt = it.first;
+            int u = it.second.first;
+            int v = it.second.second;
+            if (ds.findUPar(u) != ds.findUPar(v))
+            {
+                mstwt += wt;
+                ds.unionByRank(u, v);
+            }
         }
+        return mstwt;
     }
 };
-int main()
-{
-    DisjointSet ds(7);
-    ds.unionByRank(1, 2);
-    ds.unionByRank(2, 3);
-    ds.unionByRank(4, 5);
-    ds.unionByRank(6, 7);
-    ds.unionByRank(5, 6);
-    // if 3 and 7 same or not
-    if (ds.findUPar(3) == ds.findUPar(7))
-    {
-        cout << "Same\n";
-    }
-    else
-        cout << "Not same\n";
-
-    ds.unionByRank(3, 7);
-
-    if (ds.findUPar(3) == ds.findUPar(7))
-    {
-        cout << "Same\n";
-    }
-    else
-        cout << "Not same\n";
-    return 0;
-}
